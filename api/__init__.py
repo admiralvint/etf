@@ -11,7 +11,7 @@ import azure.functions as func
 from flask import Flask, render_template, request, send_from_directory
 import os
 
-app = Flask(__name__, static_folder='/home/site/wwwroot/static', template_folder='/home/site/wwwroot/templates')
+app = Flask(__name__)
 
 # Import your existing etfapp functions
 from . import etfapp  # Import your existing etfapp functions
@@ -108,18 +108,23 @@ def index():
                 break  # No more stocks to process
         
         if not stocks:
-            return "Error: No valid stock data submitted", 400
+            return jsonify({"error": "No valid stock data submitted"}), 400
         
-        return render_template('index.html', stocks=stocks)
+        return jsonify({"stocks": stocks})
     
     return render_template('index.html')
 
-@app.route('/static/<path:path>')
-def send_static(path):
-    return send_from_directory('static', path)
+def main(req: func.HttpRequest) -> func.HttpResponse:
+    if req.method == 'POST':
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            return func.HttpResponse("Invalid JSON", status_code=400)
 
-def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
-    return func.WsgiMiddleware(app.wsgi_app).handle(req, context)
+        response = app.test_client().post('/', json=req_body)
+        return func.HttpResponse(response.data, status_code=response.status_code, mimetype="application/json")
+    else:
+        return func.WsgiMiddleware(app.wsgi_app).handle(req)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
