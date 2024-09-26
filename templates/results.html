@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rahamasin päriselus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Rahamasin päriselus</h1>
+        {% for stock in stocks %}
+        <div class="stock-result">
+            <h2>{{ stock.name }}</h2>
+            <div class="results-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Total Return</td>
+                            <td>€ {{ "%.2f"|format(stock.results[0]) }}</td>
+                        </tr>
+                        <tr>
+                            <td>Contributions Only</td>
+                            <td>€ {{ "%.2f"|format(stock.results[1]) }}</td>
+                        </tr>
+                        <tr>
+                            <td>Reinvested Dividends</td>
+                            <td>€ {{ "%.2f"|format(stock.results[2]) }}</td>
+                        </tr>
+                        <tr>
+                            <td>Difference</td>
+                            <td>€ {{ "%.2f"|format(stock.results[3]) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="graph">
+                <img src="data:image/png;base64,{{ stock.graph }}" alt="{{ stock.name }} Graph">
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% if stocks|length > 1 %}
+        <div class="comparison">
+            <h2>Comparison</h2>
+            <div class="results-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stock/ETF</th>
+                            <th>Total Return</th>
+                            <th>Contributions Only</th>
+                            <th>Reinvested Dividends</th>
+                            <th>Difference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock in stocks %}
+                        <tr>
+                            <td>{{ stock.name }}</td>
+                            <td>€ {{ "%.2f"|format(stock.results[0]) }}</td>
+                            <td>€ {{ "%.2f"|format(stock.results[1]) }}</td>
+                            <td>€ {{ "%.2f"|format(stock.results[2]) }}</td>
+                            <td>€ {{ "%.2f"|format(stock.results[3]) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="button-container">
+            <a href="/" class="button">Tagasi võrdlema</a>
+        </div>
+    </div>
+</body>
+</html>

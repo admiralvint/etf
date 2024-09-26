@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stonksivõrdlus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Stonksivõrdlus (kuni 3tk)</h1>
+        <form action="/" method="post">
+            <div id="stock-inputs">
+                <div class="stock-input">
+                    <input type="text" name="stock_name_1" placeholder="Aktsia/ETF" required>
+                    <input type="text" name="initial_amount_1" placeholder="Algsumma" required>
+                    <input type="text" name="monthly_contribution_1" placeholder="Iga kuu lisan juurde" required>
+                    <input type="text" name="annual_return_1" placeholder="Oodatav aastatootlus (%)" required>
+                    <input type="text" name="dividend_yield_1" placeholder="Oodatud aastane dividendimäär (%)" required>
+                    <input type="number" name="years_1" placeholder="Kaua hoida tahan?" required>
+                </div>
+            </div>
+            <div class="button-container">
+                <button type="button" id="add-stock">Lisa veel üks aktsia/ETF</button>
+                <button type="submit">Võrdle</button>
+            </div>
+        </form>
+
+        {% if stocks %}
+        <div id="results">
+            <h2>Tulemused</h2>
+            {% for stock in stocks %}
+            <div class="stock-result">
+                <h3 class="stock-name">{{ stock.name }}</h3>
+                <div class="input-summary">
+                    <p>Algsumma: <strong>€ {{ "%.2f"|format(stock.initial_amount) }}</strong></p>
+                    <p>Igakuine panus: <strong>€ {{ "%.2f"|format(stock.monthly_contribution) }}</strong></p>
+                    <p>Oodatav tootlus: <strong>{{ stock.annual_return }}%</strong></p>
+                    <p>Dividendimäär: <strong>{{ stock.dividend_yield }}%</strong></p>
+                    <p>Aastad: <strong>{{ stock.years }}</strong></p>
+                </div>
+                <div class="results-table">
+                    <table>
+                        <tr><th>Lõppsumma (Kui reinvesteerisin dividendid)</th><td><strong>€ {{ "%.2f"|format(stock.results[0]) }}</strong></td></tr>
+                        <tr><th>Lõppsumma (Kui dividendid välja võtsin)</th><td><strong>€ {{ "%.2f"|format(stock.results[1]) }}</strong></td></tr>
+                        <tr><th>Saadud dividendid</th><td><strong>€ {{ "%.2f"|format(stock.results[2]) }}</strong></td></tr>
+                        <tr><th>Vahe (Reinvesteeritud vs mitte reinvesteeritud dividendid)</th><td><strong>€ {{ "%.2f"|format(stock.results[3]) }}</strong></td></tr>
+                    </table>
+                </div>
+                <div class="graph">
+                    <img src="data:image/png;base64,{{ stock.graph }}" alt="{{ stock.name }} Graph">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    <script>
+        let stockCount = 1;
+        const maxStocks = 3;
+        document.getElementById('add-stock').addEventListener('click', function() {
+            if (stockCount < maxStocks) {
+                stockCount++;
+                const newStock = document.createElement('div');
+                newStock.className = 'stock-input';
+                newStock.innerHTML = `
+                    <input type="text" name="stock_name_1" placeholder="Aktsia/ETF" required>
+                    <input type="text" name="initial_amount_1" placeholder="Algsumma" required>
+                    <input type="text" name="monthly_contribution_1" placeholder="Iga kuu lisan juurde" required>
+                    <input type="text" name="annual_return_1" placeholder="Oodatav aastatootlus (%)" required>
+                    <input type="text" name="dividend_yield_1" placeholder="Oodatud aastane dividendimäär (%)" required>
+                    <input type="number" name="years_1" placeholder="Kaua hoida tahan?" required>
+                `;
+                document.getElementById('stock-inputs').appendChild(newStock);
+                if (stockCount === maxStocks) {
+                    this.style.display = 'none';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
