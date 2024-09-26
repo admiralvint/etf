@@ -1,13 +1,20 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from io import BytesIO
 import base64
 import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend
 
+import azure.functions as func
+from flask import Flask, render_template, request, send_from_directory
+import os
+
 app = Flask(__name__)
+
+# Import your existing etfapp functions
+from . import etfapp  # Import your existing etfapp functions
 
 def calculate_investment(initial_amount, monthly_contribution, annual_return, dividend_yield, years):
     months = years * 12
@@ -106,6 +113,13 @@ def index():
         return render_template('index.html', stocks=stocks)
     
     return render_template('index.html')
+
+@app.route('/static/<path:path>')
+def send_static(path):
+    return send_from_directory('static', path)
+
+def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
+    return func.WsgiMiddleware(app.wsgi_app).handle(req, context)
 
 if __name__ == '__main__':
     app.run(debug=True)
