@@ -11,7 +11,7 @@ import azure.functions as func
 from flask import Flask, render_template, request, send_from_directory
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='/home/site/wwwroot/static', template_folder='/home/site/wwwroot/templates')
 
 # Import your existing etfapp functions
 from . import etfapp  # Import your existing etfapp functions
